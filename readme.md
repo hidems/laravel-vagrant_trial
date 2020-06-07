@@ -24,7 +24,7 @@ composer global about
 /home/vagrant/.config/composer/vendor/bin/laravel
 
 sudo vi ~/.bashrc
-and fox it as below
+and fix it as below
 PATH=$PATH:$HOME/.local/bin:$HOME/bin:/home/vagrant/.config/composer/vendor/bin/
 
 top page: http://192.168.33.11/laraproject/public/
@@ -56,8 +56,31 @@ add .env into .gitignore
 ref -> https://www.kabanoki.net/2524/
 reg -> https://laravel10.wordpress.com/2015/02/13/laravel%e3%81%ae%e3%82%a4%e3%83%b3%e3%82%b9%e3%83%88%e3%83%bc%e3%83%ab/#more-13 (and other setup)
 
+- Apache does not start when vagrant up.
+Because apache started before mount sharing folder, and it is myabe because of change setting apache in CentOS.
+Add code in Vagrantfile in order to fix this issue.
+```
+config.vm.provision :shell, run: "always", :inline => <<-EOT
+    sudo service httpd restart
+EOT
+```
+
 - Routing does not work
 It does not work when new route is created.
 Fix httpd.conf to add AllowOverride All
  /etc/httpd/conf/httpd.conf
 ref -> https://qiita.com/msht0511/items/b32122413745d0a3d50a
+
+- Show error when executing migrate
+SQLSTATE[42000]: Syntax error or access violation: 1071 Specified key was too long; max key length is 767 bytes (SQL: alter table `users` add unique `users_email_unique`(`email`))
+Solved by this links
+A temporary solution would be going to your config/database.php and change the charset and collation from utf8mb4 to utf8
+
+'charset' => 'utf8',
+'collation' => 'utf8_unicode_ci',
+
+This happens because utf8mb4 uses 4 bytes per character, and the email column has a 255 character length which is greater than the limit 767 bytes. 255 x 4bytes = 1020b.
+
+To fix this the email column length should be at most 191. 191 x 4 bytes = 764b.
+https://github.com/laravel/framework/issues/24711
+

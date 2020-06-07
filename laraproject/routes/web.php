@@ -17,6 +17,34 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('test', function () {
-    return view('test');
+// Test page to show only name in URL (Ex. http://192.168.33.11/request?name=John)
+Route::get('request', function () {
+    // $name = request('name');
+    return view('request', [
+        'name' => request('name')
+    ]);
 });
+
+// No controller and operate in this file to show pages
+Route::get('posts_dir/{POST}', function($post) {
+    $posts = [
+        'my-first-post' => 'Hello, this is my first blog. I am...',
+        'my-second-post' => 'Hey, my 2nd post I would show you...'
+    ];
+
+    if(! array_key_exists($post, $posts)) {
+        abort(404, 'Sorry, that post was not found.');
+    }
+
+    return view('post', [
+        // 'post' => $posts[$post] ?? 'Nothing here yet'
+        'post' => $posts[$post] ?? 'Nothing here yet'
+    ]);
+});
+
+// Call Controller
+Route::get('subposts/{post}', 'SubPostsController@show');
+
+// Call Controller
+Route::get('posts/{post}', 'PostsController@show');
+

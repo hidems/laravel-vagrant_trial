@@ -88,6 +88,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     #   apt-get install -y apache2
     # SHELL
   end
+
+  config.vm.provision :shell, run: "always", :inline => <<-EOT
+    sudo service httpd restart
+  EOT
   
 #  config.vm.define "stg" do |stg|
 #    stg.vm.box = "bento/centos-7.3"
